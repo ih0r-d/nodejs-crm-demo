@@ -2,6 +2,8 @@ const express = require('express')
 
 const mongoose = require('mongoose')
 const parser = require('body-parser')
+const passport = require('passport')
+
 
 const authRoutes = require('./routes/auth')
 const analyticsRoutes = require('./routes/analytics')
@@ -18,9 +20,12 @@ mongoose.connect(props.MONGODB_URI, {
     useUnifiedTopology: true,
     useFindAndModify: false,
     useCreateIndex: true
-    }).then(() => console.log('Connected to MongoDb successfully'
-    )).catch(e => console.log(e))
+}).then(() => console.log('Connected to MongoDb successfully'
+)).catch(e => console.log(e))
 
+
+app.use(passport.initialize())
+require('./middleware/passport')(passport)
 app.use(require('morgan')('dev'))
 app.use(parser.urlencoded({extended: true}))
 app.use(parser.json())
