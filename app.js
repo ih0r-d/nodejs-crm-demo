@@ -1,4 +1,7 @@
 const express = require('express')
+
+const parser = require('body-parser')
+
 const authRoutes = require('./routes/auth')
 const analyticsRoutes = require('./routes/analytics')
 const categoryRoutes = require('./routes/category')
@@ -6,6 +9,9 @@ const orderRoutes = require('./routes/order')
 const positionRoutes = require('./routes/position')
 
 const app = express()
+
+app.use(parser.urlencoded({extended: true}))
+app.use(parser.json())
 
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/analytics', analyticsRoutes)
