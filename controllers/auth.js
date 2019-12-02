@@ -1,13 +1,52 @@
-module.exports.login = (req,res) => {
-    res.status(200).json({
-        login : "Successfully login"
-    })
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const User = require('../models/User')
+const props = require('../config/properties')
+
+module.exports.login = async (req, res) => {
+    const candidate = await User.findOne({email: req.body.email})
+    if (candidate) {
+        const passwordResult = bcrypt.compareSync(req.body.password, candidate.password)
+        if (passwordResult){
+            const token = jwt.sign({
+                email: candidate.email,
+                id: candidate._id
+            }, props.JWT, {expiresIn: 60 * 30})
+
+            res.status(200).json({
+                token: `Bearer ${token}`
+            })
+        } else {
+            res.status(401).json({
+                message: `Passwords are different. Please verify data and try login again`
+            })
+        }
+    } else {
+        res.status(404).json({
+            message: `User by email - ${req.body.email} not found...`
+        })
+    }
 }
 
-module.exports.register = (req,res) => {
-    res.status(200).json({
-        register : "Successfully registration"
-    })
+module.exports.register = async (req, res) => {
+
+    const candidate = await User.findOne({email: req.body.email})
+    if (candidate) {
+        res.status(409).json({
+            message: 'User already exists . . '
+        })
+    } else {
+        const user = new User({
+            email: req.body.email,
+            password: bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10))
+        })
+        try {
+            await user.save()
+            res.status(201).json(user)
+        } catch (e) {
+            console.log(e)
+        }
+    }
 }
 
 
