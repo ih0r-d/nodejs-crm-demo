@@ -1,0 +1,29 @@
+version: '3.7'
+services:
+  app:
+    container_name: crm-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    expose:
+      - 5000
+    links:
+      - db
+    networks:
+      - backend
+  db:
+    image: mongo:latest
+    container_name: mongo_dev
+    restart: always
+    volumes:
+      - ./data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - backend
+networks:
+  backend:
+    driver: bridge
+
